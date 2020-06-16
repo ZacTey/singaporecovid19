@@ -1,4 +1,4 @@
-python==3.8.2
+python==3.8.3
 streamlit==0.61.0
 pandas==1.0.4
 plotly-express==0.4.1
