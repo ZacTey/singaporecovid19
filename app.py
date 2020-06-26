@@ -16,7 +16,7 @@ st.markdown("This application is a Streamlit dashboard that can be used "
 
 @st.cache(persist=True)
 def load_data(nrows):
-    df = pd.read_csv(DATA_URL, error_bad_lines=False, nrows=nrows])
+    df = pd.read_csv(DATA_URL, error_bad_lines=False, nrows=nrows)
     df.dropna(subset=['latitude', 'longitude'], inplace=True)
     lowercase = lambda x: str(x).lower()
     df.rename(lowercase, axis="columns", inplace=True)
