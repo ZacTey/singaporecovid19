@@ -5,7 +5,6 @@ import pydeck as pdk
 import plotly.express as px
 
 
-DATE = "date"
 DATA_URL = (
      "https://raw.githubusercontent.com/ZacTey/singaporecovid19/master/SingaporeCovid19April2020.csv"
 )
@@ -17,11 +16,11 @@ st.markdown("This application is a Streamlit dashboard that can be used "
 
 @st.cache(persist=True)
 def load_data(nrows):
-    df = pd.read_csv(DATA_URL, error_bad_lines=False, nrows=nrows, parse_dates=[['date', 'date discharged']])
+    df = pd.read_csv(DATA_URL, error_bad_lines=False, nrows=nrows])
     df.dropna(subset=['latitude', 'longitude'], inplace=True)
     lowercase = lambda x: str(x).lower()
     df.rename(lowercase, axis="columns", inplace=True)
-    df.rename(columns={"cluster_local": "location","date_date_discharded": "date"}, inplace=True)
+    df.rename(columns={"cluster_local": "location"}, inplace=True)
     df_area=pd.DataFrame(df['location'].value_counts())
     df['gender'].replace({'f': 'female','m': 'male'},inplace=True)
     return df
