@@ -4,41 +4,88 @@ import numpy as np
 import pydeck as pdk
 import plotly.express as px
 
-DATE_TIME = "date/time"
+
+DATE = "date"
 DATA_URL = (
-    "https://raw.githubusercontent.com/ZacTey/singaporecovid19/master/Motor_Vehicle_Collisions_-_Crashes.csv"
+     "https://raw.githubusercontent.com/ZacTey/singaporecovid19/master/SingaporeCovid19April2020.csv"
 )
 
-st.title("Motor Vehicle Collisions in New York City")
+st.title("Covid 19 cases in Singapore")
 st.markdown("This application is a Streamlit dashboard that can be used "
-            "to analyze motor vehicle collisions in NYC 🗽💥🚗")
+            "to analyze a given dataset of Covid-19 cases in Singapore 🦠😷🚑")
 
 
 @st.cache(persist=True)
 def load_data(nrows):
-    data = pd.read_csv(DATA_URL, error_bad_lines=False, nrows=nrows, parse_dates=[['CRASH_DATE', 'CRASH_TIME']])
-    data.dropna(subset=['LATITUDE', 'LONGITUDE'], inplace=True)
+    df = pd.read_csv(DATA_URL, error_bad_lines=False, nrows=nrows, parse_dates=[['date', 'date discharged']])
+    df.dropna(subset=['latitude', 'longitude'], inplace=True)
     lowercase = lambda x: str(x).lower()
-    data.rename(lowercase, axis="columns", inplace=True)
-    data.rename(columns={"crash_date_crash_time": "date/time"}, inplace=True)
-    #data = data[['date/time', 'latitude', 'longitude']]
-    return data
+    df.rename(lowercase, axis="columns", inplace=True)
+    df.rename(columns={"cluster_local": "location","date_date_discharded": "date"}, inplace=True)
+    df_area=pd.DataFrame(df['location'].value_counts())
+    df['gender'].replace({'f': 'female','m': 'male'},inplace=True)
+    return df
 
-data = load_data(15000)
-data[['latitude','longitude']].to_csv('lat_long.csv', index=False)
+df = load_data(3200)
+df[['latitude','longitude']].to_csv('lat_long.csv', index=False)
 
 
-st.header("Where are the most people injured in NYC?")
-injured_people = st.slider("Number of persons injured in vehicle collisions", 0, 19)
-st.map(data.query("injured_persons >= @injured_people")[["latitude", "longitude"]].dropna(how="any"))
+df_marking=df.drop_duplicates('location',keep='first')
+df_marking.drop(df.columns.difference(['location','latitude','longitude']), 1, inplace=True)
+df_marking.index.name = 'id'
+df_marking.reset_index()
+df_area=pd.DataFrame(df['location'].value_counts())
+df_area.rename(columns={"location": "numbers"}, inplace=True)
+df_area.index.name = 'location'
+df_area.reset_index()
+df_areamarking = (df_area.merge(df_marking, left_on='location', right_on='location')
+          .reindex(columns=['location', 'latitude','longitude','numbers']))
 
-st.header("How many collisions occur during a given time of day?")
-hour = st.slider("Hour to look at", 0, 23)
-original_data = data
-data = data[data[DATE_TIME].dt.hour == hour]
-st.markdown("Vehicle collisions between %i:00 and %i:00" % (hour, (hour + 1) % 24))
 
-midpoint = (np.average(data["latitude"]), np.average(data["longitude"]))
+st.header("Where are the Covid-19 clusters in Singapore?")
+slider_tuple = st.slider("Total number of infected persons between:", 0, 200,(1,50))
+df_mark=df_areamarking[ 
+  (slider_tuple[0] <= df_areamarking['numbers'])  & (df_areamarking['numbers'] <= slider_tuple[1]) 
+]
+if df_mark.empty == True:
+    st.markdown("Based on the loaded dataset, there are no total number of people in this range.")
+    st.map(df_mark)
+else:
+    st.map(df_mark)
+    ftitle = ("Total number of infected persons between %i and %i based on gender" % (slider_tuple[0],slider_tuple[1]))
+    df_filtered=df[df['location'].isin(df_mark['location'])]
+    f = px.histogram(df_filtered, x="gender",opacity=0.7,nbins=15,color="gender",title=ftitle)
+    f.update_xaxes(title="Gender")
+    f.update_yaxes(title="Number of Infected Persons")
+    f.update_layout(
+        hoverlabel=dict(
+            bgcolor="white", 
+            font_size=15, 
+            font_family="Rockwell"
+        )
+    )
+    st.plotly_chart(f)
+
+if st.checkbox("Show raw data", False):
+    st.subheader("Raw data by total number of infected persons between %i and %i" % (slider_tuple[0],slider_tuple[1]))
+    st.write(df_mark)
+    
+
+
+st.header("Top 5 locations based on nationality")
+select = st.selectbox('Nationality', ['Singaporean', 'Foreingners'])
+df_sg = df[(df['nationality']=='singapore')]
+df_notsg = df[(df['nationality']!='singapore')]
+if select == 'Singaporean':
+    df_sg=pd.DataFrame(df_sg['location'].value_counts())
+    st.write(df_sg.head(5))
+else:
+    df_notsg=pd.DataFrame(df_notsg['location'].value_counts())
+    st.write(df_notsg.head(5))  
+
+
+st.header("Which area has the highest number of infected persons?")
+midpoint = (np.average(df_marking["latitude"]), np.average(df_marking["longitude"]))
 st.write(pdk.Deck(
     map_style="mapbox://styles/mapbox/light-v9",
     initial_view_state={
@@ -50,39 +97,15 @@ st.write(pdk.Deck(
     layers=[
         pdk.Layer(
         "HexagonLayer",
-        data=data[['date/time', 'latitude', 'longitude']],
+        data=df[['location', 'latitude', 'longitude']],
         get_position=["longitude", "latitude"],
         auto_highlight=True,
-        radius=100,
+        radius=300,
         extruded=True,
         pickable=True,
-        elevation_scale=4,
+        elevation_scale=6,
         elevation_range=[0, 1000],
+        get_color='[200, 30, 0, 160]'
         ),
     ],
 ))
-if st.checkbox("Show raw data", False):
-    st.subheader("Raw data by minute between %i:00 and %i:00" % (hour, (hour + 1) % 24))
-    st.write(data)
-
-st.subheader("Breakdown by minute between %i:00 and %i:00" % (hour, (hour + 1) % 24))
-filtered = data[
-    (data[DATE_TIME].dt.hour >= hour) & (data[DATE_TIME].dt.hour < (hour + 1))
-]
-hist = np.histogram(filtered[DATE_TIME].dt.minute, bins=60, range=(0, 60))[0]
-chart_data = pd.DataFrame({"minute": range(60), "crashes": hist})
-
-fig = px.bar(chart_data, x='minute', y='crashes', hover_data=['minute', 'crashes'], height=400)
-st.write(fig)
-
-st.header("Top 5 dangerous streets by affected class")
-select = st.selectbox('Affected class', ['Pedestrians', 'Cyclists', 'Motorists'])
-
-if select == 'Pedestrians':
-    st.write(original_data.query("injured_pedestrians >= 1")[["on_street_name", "injured_pedestrians"]].sort_values(by=['injured_pedestrians'], ascending=False).dropna(how="any")[:5])
-
-elif select == 'Cyclists':
-    st.write(original_data.query("injured_cyclists >= 1")[["on_street_name", "injured_cyclists"]].sort_values(by=['injured_cyclists'], ascending=False).dropna(how="any")[:5])
-
-else:
-    st.write(original_data.query("injured_motorists >= 1")[["on_street_name", "injured_motorists"]].sort_values(by=['injured_motorists'], ascending=False).dropna(how="any")[:5])
