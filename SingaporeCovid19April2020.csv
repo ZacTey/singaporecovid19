@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 case,date,age,gender,nationality,hospital,imported,cluster_local,latitude,longitude,link,date discharged,deceased
 1,23/1/2020,66,m,china,sgh,wuhan,,,,,19/2/2020,FALSE
 2,24/1/2020,53,f,china,ttsh,wuhan,,,,,,
@@ -3252,7 +3251,7 @@ case,date,age,gender,nationality,hospital,imported,cluster_local,latitude,longit
 3250,14/4/2020,34,m,bangladesh,,,,,,,,
 3251,14/4/2020,39,m,bangladesh,cgh,,s11 dorm,1.41649,103.8931693,,,
 3252,14/4/2020,40,m,india,,,,,,,,
-=======
+=======,,,,,,,,,,,,
 case,date,age,gender,nationality,hospital,imported,cluster_local,latitude,longitude,link,date discharged,deceased
 1,23/1/2020,66,m,china,sgh,wuhan,,,,,19/2/2020,FALSE
 2,24/1/2020,53,f,china,ttsh,wuhan,,,,,,
@@ -6506,4 +6505,3 @@ case,date,age,gender,nationality,hospital,imported,cluster_local,latitude,longit
 3250,14/4/2020,34,m,bangladesh,,,,,,,,
 3251,14/4/2020,39,m,bangladesh,cgh,,s11 dorm,1.41649,103.8931693,,,
 3252,14/4/2020,40,m,india,,,,,,,,
->>>>>>> 04ca415ee34de980bb4255a423bf1b8a8f437705

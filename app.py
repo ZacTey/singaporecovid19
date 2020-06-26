@@ -26,8 +26,6 @@ def load_data(nrows):
     return df
 
 df = load_data(3200)
-df[['latitude','longitude']].to_csv('lat_long.csv', index=False)
-
 
 df_marking=df.drop_duplicates('location',keep='first')
 df_marking.drop(df.columns.difference(['location','latitude','longitude']), 1, inplace=True)
