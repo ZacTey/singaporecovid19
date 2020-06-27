@@ -51,10 +51,13 @@ else:
     st.map(df_mark)
     ftitle = ("Total number of infected persons between %i and %i based on gender" % (slider_tuple[0],slider_tuple[1]))
     df_filtered=df[df['location'].isin(df_mark['location'])]
-    f = px.histogram(df_filtered, x="gender",opacity=0.7,nbins=15,color="gender",title=ftitle)
+    f = px.histogram(df_filtered, x="gender",opacity=0.7,color="gender",title=ftitle)
     f.update_xaxes(title="Gender")
     f.update_yaxes(title="Number of Infected Persons")
     f.update_layout(
+        autosize=False,
+        width=500,
+        height=500,
         hoverlabel=dict(
             bgcolor="white", 
             font_size=15, 
