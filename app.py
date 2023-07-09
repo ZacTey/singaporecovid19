@@ -29,7 +29,8 @@ def load_data(nrows):
 df = load_data(3200)
 
 df_marking=df.drop_duplicates('location',keep='first')
-df_marking.drop(df.columns.difference(['location','latitude','longitude']), 1, inplace=True)
+#df_marking.drop(df.columns.difference(['location','latitude','longitude']), 1, inplace=True)
+df_marking.drop(df.columns.difference(['location','latitude','longitude']), inplace=True)
 df_marking.index.name = 'id'
 df_marking.reset_index()
 df_area=pd.DataFrame(df['location'].value_counts())
