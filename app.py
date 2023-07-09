@@ -14,7 +14,8 @@ st.markdown("This application is a Streamlit dashboard that can be used "
             "to analyze a given dataset of Covid-19 cases in Singapore 🦠😷🚑")
 
 
-@st.cache(persist=True)
+##@st.cache(persist=True)
+@st.cache_data
 def load_data(nrows):
     df = pd.read_csv(DATA_URL,  nrows=nrows)
     df.dropna(subset=['latitude', 'longitude'], inplace=True)
