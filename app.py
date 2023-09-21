@@ -14,10 +14,9 @@ st.markdown("This application is a Streamlit dashboard that can be used "
             "to analyze a given dataset of Covid-19 cases in Singapore 🦠😷🚑")
 
 
-##@st.cache(persist=True)
-@st.cache_data
+@st.cache(persist=True)
 def load_data(nrows):
-    df = pd.read_csv(DATA_URL,  nrows=nrows)
+    df = pd.read_csv(DATA_URL, error_bad_lines=False, nrows=nrows)
     df.dropna(subset=['latitude', 'longitude'], inplace=True)
     lowercase = lambda x: str(x).lower()
     df.rename(lowercase, axis="columns", inplace=True)
@@ -29,7 +28,7 @@ def load_data(nrows):
 df = load_data(3200)
 
 df_marking=df.drop_duplicates('location',keep='first')
-df_marking.drop(df.columns.difference(['location','latitude','longitude']), axis=1, inplace=True)
+df_marking.drop(df.columns.difference(['location','latitude','longitude']), 1, inplace=True)
 df_marking.index.name = 'id'
 df_marking.reset_index()
 df_area=pd.DataFrame(df['location'].value_counts())
