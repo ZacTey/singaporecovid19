@@ -4,6 +4,7 @@ import numpy as np
 import pydeck as pdk
 import plotly.express as px
 
+showWarningOnDirectExecution = False
 
 DATA_URL = (
      "https://raw.githubusercontent.com/ZacTey/singaporecovid19/master/SingaporeCovid19April2020.csv"
